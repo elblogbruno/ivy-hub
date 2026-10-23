@@ -1,0 +1,38 @@
+name: ivy_display
+description: "Pantalla nativa para Lenovo Smart Display (Ivy) conectada a Home Assistant."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flare_flutter:
+    path: third_party/flare_flutter
+  video_player: ^2.11.1
+  exif: ^3.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/froggy/
+
+  fonts:
+    - family: GoogleSans
+      fonts:
+        - asset: fonts/GoogleSans-Regular.ttf
+          weight: 400
+        - asset: fonts/GoogleSans-Medium.ttf
+          weight: 500
+    - family: GoogleSansDisplay
+      fonts:
+        - asset: fonts/GoogleSansDisplay-Regular.ttf

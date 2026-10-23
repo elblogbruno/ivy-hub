@@ -1,0 +1,56 @@
+diff --git a/src/main.rs b/src/main.rs
+index fb85803..0cb597e 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -2005,8 +2005,51 @@ async fn main() {
+         }
+     }
+ 
++    // Ivy (Lenovo Smart Display): line commands on stdin from the Android app.
++    //   play_pause | next | prev | shuffle 0/1 | repeat 0/1 | volume <0-65535> | seek <ms> | lyrics <base62 id>
++    let (ivy_tx, mut ivy_rx) = tokio::sync::mpsc::unbounded_channel::<String>();
++    std::thread::spawn(move || {
++        use std::io::BufRead;
++        for line in std::io::stdin().lock().lines().map_while(Result::ok) {
++            if ivy_tx.send(line).is_err() {
++                break;
++            }
++        }
++    });
++
+     loop {
+         tokio::select! {
++            Some(cmd) = ivy_rx.recv() => {
++                let (verb, arg) = cmd.split_once(' ').unwrap_or((cmd.as_str(), ""));
++                if verb == "lyrics" {
++                    let session = session.clone();
++                    let id = arg.trim().to_string();
++                    tokio::spawn(async move {
++                        let body = match librespot::core::SpotifyId::from_base62(&id) {
++                            Ok(track) => match session.spclient().get_lyrics(&track).await {
++                                Ok(bytes) => String::from_utf8_lossy(&bytes).replace(['\n', '\r'], " "),
++                                Err(e) => { warn!("ivy lyrics {id}: {e}"); String::new() }
++                            },
++                            Err(e) => { warn!("ivy lyrics bad id {id}: {e}"); String::new() }
++                        };
++                        eprintln!("IVYLYR\t{id}\t{body}");
++                    });
++                } else if let Some(spirc) = spirc.as_ref() {
++                    let result = match verb {
++                        "play_pause" => spirc.play_pause(),
++                        "next" => spirc.next(),
++                        "prev" => spirc.prev(),
++                        "shuffle" => spirc.shuffle(arg == "1"),
++                        "repeat" => spirc.repeat(arg == "1"),
++                        "volume" => spirc.set_volume(arg.parse().unwrap_or(0)),
++                        "seek" => spirc.set_position_ms(arg.parse().unwrap_or(0)),
++                        _ => Ok(()),
++                    };
++                    if let Err(e) = result {
++                        warn!("ivy command {cmd}: {e}");
++                    }
++                }
++            },
+             credentials = async {
+                 match discovery.as_mut() {
+                     Some(d) => d.next().await,
