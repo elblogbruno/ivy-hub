@@ -50,3 +50,4 @@ secrets.json
 assets/froggy/*
 !assets/froggy/README.md
 assets/audio/
+brag-output/

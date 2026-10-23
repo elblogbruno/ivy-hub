@@ -10,6 +10,10 @@ A native Home Assistant hub, voice assistant and photo frame for the 7″ Lenovo
 ![Android Things](https://img.shields.io/badge/Android%20Things-8.1-3DDC84?logo=android&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
+<a href="docs/ivy-hub.mp4"><img src="docs/hero.jpg" alt="Ivy Hub launch video" width="820"></a>
+
+<sub>▶ Click to watch the 20‑second launch video</sub>
+
 </div>
 
 ---
